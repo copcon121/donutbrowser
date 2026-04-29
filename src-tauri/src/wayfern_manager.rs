@@ -336,19 +336,29 @@ impl WayfernManager {
       }
     };
 
-    let os = config
-      .os
-      .as_deref()
-      .unwrap_or(if cfg!(target_os = "macos") {
-        "macos"
-      } else if cfg!(target_os = "linux") {
-        "linux"
-      } else {
-        "windows"
-      });
+    let host_os = if cfg!(target_os = "macos") {
+      "macos"
+    } else if cfg!(target_os = "linux") {
+      "linux"
+    } else {
+      "windows"
+    };
+    let requested_os = config.os.as_deref().unwrap_or(host_os);
 
     // Include wayfern token if available (enables cross-OS fingerprinting for paid users)
     let wayfern_token = crate::cloud_auth::CLOUD_AUTH.get_wayfern_token().await;
+
+    // If no wayfern token and cross-OS requested, fall back to host OS
+    let os = if wayfern_token.is_none() && requested_os != host_os {
+      log::warn!(
+        "No wayfern token available for cross-OS fingerprinting (requested: {}, host: {}). Falling back to host OS.",
+        requested_os, host_os
+      );
+      host_os
+    } else {
+      requested_os
+    };
+
     let mut refresh_params = json!({ "operatingSystem": os });
     if let Some(ref token) = wayfern_token {
       refresh_params
