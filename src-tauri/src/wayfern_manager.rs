@@ -240,7 +240,6 @@ impl WayfernManager {
       .arg(format!("--remote-debugging-port={port}"))
       .arg("--remote-debugging-address=127.0.0.1")
       .arg(format!("--user-data-dir={}", temp_profile_dir.display()))
-      .arg("--disable-gpu")
       .arg("--no-first-run")
       .arg("--no-default-browser-check")
       .arg("--disable-background-mode")
@@ -252,7 +251,12 @@ impl WayfernManager {
     cmd
       .arg("--no-sandbox")
       .arg("--disable-setuid-sandbox")
-      .arg("--disable-dev-shm-usage");
+      .arg("--disable-dev-shm-usage")
+      .arg("--ignore-gpu-blocklist")
+      .arg("--enable-unsafe-swiftshader");
+
+    #[cfg(not(target_os = "linux"))]
+    cmd.arg("--disable-gpu");
 
     cmd.stdout(Stdio::null()).stderr(Stdio::piped());
 
@@ -630,8 +634,7 @@ impl WayfernManager {
       args.push("--disable-setuid-sandbox".to_string());
       args.push("--disable-dev-shm-usage".to_string());
       args.push("--ignore-gpu-blocklist".to_string());
-      args.push("--enable-webgl".to_string());
-      args.push("--use-angle=swiftshader".to_string());
+      args.push("--enable-unsafe-swiftshader".to_string());
     }
 
     if ephemeral {
