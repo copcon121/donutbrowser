@@ -629,6 +629,9 @@ impl WayfernManager {
       args.push("--no-sandbox".to_string());
       args.push("--disable-setuid-sandbox".to_string());
       args.push("--disable-dev-shm-usage".to_string());
+      args.push("--ignore-gpu-blocklist".to_string());
+      args.push("--enable-webgl".to_string());
+      args.push("--use-angle=swiftshader".to_string());
     }
 
     if ephemeral {
