@@ -143,7 +143,16 @@ impl VersionUpdater {
   pub async fn check_and_run_startup_update(
     &self,
   ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    // Always check for updates on launch
+    // Respect disable_auto_updates setting
+    let disabled = crate::settings_manager::SettingsManager::instance()
+      .load_settings()
+      .map(|s| s.disable_auto_updates)
+      .unwrap_or(false);
+    if disabled {
+      log::info!("Version auto-updates disabled by user setting, skipping startup update");
+      return Ok(());
+    }
+
     if let Some(ref app_handle) = self.app_handle {
       log::info!("Running startup version update...");
 
@@ -194,6 +203,15 @@ impl VersionUpdater {
 
     loop {
       update_interval.tick().await;
+
+      // Respect disable_auto_updates setting
+      let disabled = crate::settings_manager::SettingsManager::instance()
+        .load_settings()
+        .map(|s| s.disable_auto_updates)
+        .unwrap_or(false);
+      if disabled {
+        continue;
+      }
 
       // Check if we should run an update based on persistent state
       if !Self::should_run_background_update() {

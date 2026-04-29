@@ -55,7 +55,7 @@ pub struct AppSettings {
   pub language: Option<String>, // ISO 639-1: "en", "es", "pt", "fr", "zh", "ja", "ru", or None for system default
   #[serde(default)]
   pub window_resize_warning_dismissed: bool,
-  #[serde(default)]
+  #[serde(default = "default_disable_auto_updates")]
   pub disable_auto_updates: bool,
 }
 
@@ -71,6 +71,10 @@ fn default_theme() -> String {
 
 fn default_api_port() -> u16 {
   10108
+}
+
+fn default_disable_auto_updates() -> bool {
+  true
 }
 
 impl Default for AppSettings {
@@ -91,7 +95,7 @@ impl Default for AppSettings {
       launch_on_login_declined: false,
       language: None,
       window_resize_warning_dismissed: false,
-      disable_auto_updates: false,
+      disable_auto_updates: true,
     }
   }
 }
